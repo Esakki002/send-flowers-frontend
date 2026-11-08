@@ -1,0 +1,28 @@
+{
+  "navbar": {
+    "logo": "SendFlowers",
+    "howItWorks": "How it works",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "sendRose": "Send a rose",
+    "language": "Language"
+  },
+  "hero": {
+    "eyebrow": "A DIGITAL ROSE THAT NEVER WILTS",
+    "title": "Send a 3D rose to someone you love",
+    "subtitle": "Say sorry, thank you, or I love you with a rotating 3D rose and your own words. No app. No login.",
+    "ctaSend": "Send a rose",
+    "ctaHow": "See how it works"
+  },
+  "howItWorks": {
+    "eyebrow": "HOW IT WORKS",
+    "title": "I'm sorry. Thank you. I love you.",
+    "subtitle": "It has never been easier.",
+    "step1": "Write a few heartfelt words",
+    "step1Desc": "Add your private message from the heart to a beautiful rose: voice or text.",
+    "step2": "We'll take care of the rest",
+    "step2Desc": "We'll send the card to the specified email, or give you a private link and a QR code to share."
+  }
+}
+

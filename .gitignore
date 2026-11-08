@@ -1,0 +1,55 @@
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
+.env.*
+*.env
+backend/.env
+backend/.env.*
+# Keep example templates committed
+!.env.example
+!backend/.env.example
+
+# ==========================================
+# Node / Frontend (React + Vite)
+# ==========================================
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# Python / Backend (FastAPI)
+# ==========================================
+backend/venv/
+venv/
+.venv/
+env/
+ENV/
+
+# Python byte code & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Local database files
+backend/data/*.json
+backend/data/*.tmp
+
+# ==========================================
+# OS & Editor Files
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
