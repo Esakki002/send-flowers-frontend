@@ -4,15 +4,19 @@
 
 /**
  * Normalizes a card share URL so that it always points to the active frontend origin
- * and returns a clean, short URL without bulky JSON query parameters.
+ * and returns a clean, simple short URL like:
+ * https://send-flowers-frontend.mesakkiappan02.workers.dev/receivername
+ *
+ * Completely strips query strings, ?card= JSON payloads, and legacy /c/ prefixes.
  *
  * @param rawUrl The URL returned by the backend (or stored in database)
  * @param cardId The unique identifier or recipient slug of the card (e.g. 'sandal')
+ * @param cardData Optional card data containing recipientName to ensure short recipient name in URL
  */
 export const resolveProperShareUrl = (
   rawUrl?: string,
   cardId?: string,
-  _cardData?: {
+  cardData?: {
     senderName?: string;
     recipientName?: string;
     message?: string;
@@ -26,24 +30,37 @@ export const resolveProperShareUrl = (
     'https://send-flowers-frontend.mesakkiappan02.workers.dev'
   ).replace(/\/+$/, '');
 
-  // 2. If cardId is provided, the short link is ${currentOrigin}/${cardId}
-  if (cardId) {
-    const cleanId = cardId.replace(/^\/+/, '');
-    return `${currentOrigin}/${cleanId}`;
+  // 2. Derive target slug (prefer clean recipientName slug if cardId is a long token or missing, otherwise use cardId)
+  let target = '';
+  if (cardData?.recipientName && (!cardId || cardId.length > 10)) {
+    target = cardData.recipientName
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[-\s]+/g, '-');
+  } else if (cardId) {
+    target = cardId.replace(/^\/+/, '').replace(/^c\//, '');
+  } else if (cardData?.recipientName) {
+    target = cardData.recipientName
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[-\s]+/g, '-');
   }
 
-  // 3. If rawUrl is provided, extract its pathname without query strings
+  if (target) {
+    return `${currentOrigin}/${target}`;
+  }
+
+  // 3. Fallback: Parse rawUrl and strip any query parameters or legacy /c/ prefix
   if (rawUrl) {
     try {
       const parsed = new URL(rawUrl, currentOrigin);
-      const cleanPath = parsed.pathname.replace(/\/+$/, '');
+      const cleanPath = parsed.pathname.replace(/\/+$/, '').replace(/^\/c\//, '/');
       return `${currentOrigin}${cleanPath || '/'}`;
     } catch {
-      const pathOnly = rawUrl.split('?')[0].replace(/\/+$/, '');
-      if (pathOnly.startsWith('/')) {
-        return `${currentOrigin}${pathOnly}`;
-      }
-      return `${currentOrigin}/${pathOnly}`;
+      const pathOnly = rawUrl.split('?')[0].replace(/\/+$/, '').replace(/^\/c\//, '/');
+      return pathOnly.startsWith('/') ? `${currentOrigin}${pathOnly}` : `${currentOrigin}/${pathOnly}`;
     }
   }
 
