@@ -27,11 +27,18 @@ const App: React.FC = () => {
         <LanguageSync>
           <Suspense fallback={<div className="min-h-screen bg-[var(--background)] flex items-center justify-center" />}>
             <Routes>
+              {/* Home Landing Pages */}
               <Route path="/" element={<Home />} />
-              <Route path="/:lang" element={<Home />} />
+              <Route path="/en" element={<Home />} />
+              <Route path="/ta" element={<Home />} />
+
+              {/* Receiver Pages (both legacy /c/:id and simple /:id, e.g. /sandal) */}
               <Route path="/c/:id" element={<Receiver />} />
-              {/* Fallback to redirect unknown language prefixes to / */}
-              <Route path="/:lang/*" element={<Navigate to='/' replace />} />
+              <Route path="/:lang/c/:id" element={<Receiver />} />
+              <Route path="/:id" element={<Receiver />} />
+
+              {/* Fallback to redirect unknown routes to / */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </LanguageSync>
@@ -41,4 +48,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

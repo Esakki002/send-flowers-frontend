@@ -3,18 +3,16 @@
  */
 
 /**
- * Normalizes a card share URL so that it always points to the active frontend origin.
- * Fixes issues where the backend configured FRONTEND_URL with multiple comma-separated domains
- * (e.g., "https://your-frontend-domain.vercel.app,http://localhost:5173"), localhost, or outdated domains.
+ * Normalizes a card share URL so that it always points to the active frontend origin
+ * and returns a clean, short URL without bulky JSON query parameters.
  *
  * @param rawUrl The URL returned by the backend (or stored in database)
- * @param cardId The unique identifier of the card (e.g., '9jzuv_IH3Bo')
- * @param cardData Optional card data to reconstruct query params if rawUrl is missing
+ * @param cardId The unique identifier or recipient slug of the card (e.g. 'sandal')
  */
 export const resolveProperShareUrl = (
   rawUrl?: string,
   cardId?: string,
-  cardData?: {
+  _cardData?: {
     senderName?: string;
     recipientName?: string;
     message?: string;
@@ -28,38 +26,26 @@ export const resolveProperShareUrl = (
     'https://send-flowers-frontend.mesakkiappan02.workers.dev'
   ).replace(/\/+$/, '');
 
-  // 2. If rawUrl contains '/c/', extract path and query starting at '/c/'
-  if (rawUrl) {
-    const cIndex = rawUrl.indexOf('/c/');
-    if (cIndex !== -1) {
-      const pathAndQuery = rawUrl.substring(cIndex);
-      return `${currentOrigin}${pathAndQuery}`;
-    }
-  }
-
-  // 3. If rawUrl didn't contain '/c/' but we have cardId, construct clean share URL
+  // 2. If cardId is provided, the short link is ${currentOrigin}/${cardId}
   if (cardId) {
-    let query = '';
-    if (cardData) {
-      const payload = {
-        senderName: cardData.senderName || '',
-        recipientName: cardData.recipientName || '',
-        message: cardData.message || '',
-        language: cardData.language || 'en',
-      };
-      query = `?card=${encodeURIComponent(JSON.stringify(payload))}`;
-    }
-    return `${currentOrigin}/c/${cardId}${query}`;
+    const cleanId = cardId.replace(/^\/+/, '');
+    return `${currentOrigin}/${cleanId}`;
   }
 
-  // 4. Fallback: if rawUrl is relative or a simple string
+  // 3. If rawUrl is provided, extract its pathname without query strings
   if (rawUrl) {
-    if (rawUrl.startsWith('/')) {
-      return `${currentOrigin}${rawUrl}`;
+    try {
+      const parsed = new URL(rawUrl, currentOrigin);
+      const cleanPath = parsed.pathname.replace(/\/+$/, '');
+      return `${currentOrigin}${cleanPath || '/'}`;
+    } catch {
+      const pathOnly = rawUrl.split('?')[0].replace(/\/+$/, '');
+      if (pathOnly.startsWith('/')) {
+        return `${currentOrigin}${pathOnly}`;
+      }
+      return `${currentOrigin}/${pathOnly}`;
     }
-    return rawUrl;
   }
 
   return '';
 };
-
