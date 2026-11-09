@@ -6,6 +6,7 @@ import RoseIcon from '../icons/RoseIcon';
 import CloseIcon from '../icons/CloseIcon';
 import CheckIcon from '../icons/CheckIcon';
 import LinkIcon from '../icons/LinkIcon';
+import { resolveProperShareUrl } from '../utils/url';
 
 interface OrderItem {
   order_id: string;
@@ -44,7 +45,15 @@ const OrderHistory: React.FC = () => {
         throw new Error('Failed to load orders');
       }
       const data: OrderItem[] = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      const sanitized = (Array.isArray(data) ? data : []).map((order) => ({
+        ...order,
+        share_url: resolveProperShareUrl(order.share_url, order.card_id, {
+          senderName: order.sender_name,
+          recipientName: order.recipient_name,
+          message: order.message,
+        }),
+      }));
+      setOrders(sanitized);
     } catch {
       // Quiet fail if network error
     } finally {

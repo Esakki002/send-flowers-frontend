@@ -13,6 +13,7 @@ import StopIcon from '../icons/StopIcon';
 import VoicePlayer from './VoicePlayer';
 import { getDeviceId } from '../utils/device';
 import { getApiUrl } from '../utils/api';
+import { resolveProperShareUrl } from '../utils/url';
 
 interface FormData {
   senderName: string;
@@ -199,6 +200,7 @@ const Compose: React.FC = () => {
     setShareError('');
 
     try {
+      const frontendOrigin = typeof window !== 'undefined' ? window.location.origin : '';
       console.log('Sending order request to backend...');
       // 1. Create order on FastAPI backend
       const res = await fetch(getApiUrl('/api/payment/create-order'), {
@@ -214,6 +216,8 @@ const Compose: React.FC = () => {
           amount: 100,
           deviceId: getDeviceId(),
           audioData: audioData || undefined,
+          frontendUrl: frontendOrigin,
+          origin: frontendOrigin,
         }),
       });
 
@@ -249,6 +253,8 @@ const Compose: React.FC = () => {
             delivery: data.delivery,
             deviceId: getDeviceId(),
             audioData: audioData || undefined,
+            frontendUrl: frontendOrigin,
+            origin: frontendOrigin,
           }),
         });
 
@@ -264,7 +270,8 @@ const Compose: React.FC = () => {
             localStorage.setItem(`sf_card_audio_${result.cardId}`, audioData);
           } catch {}
         }
-        setShareUrl(result.shareUrl);
+        const properShareUrl = resolveProperShareUrl(result.shareUrl, result.cardId, data);
+        setShareUrl(properShareUrl);
         setEmailResult(result.emailResult || null);
         window.dispatchEvent(new Event('order-completed'));
         setIsShareModalOpen(true);
@@ -305,6 +312,8 @@ const Compose: React.FC = () => {
                 delivery: data.delivery,
                 deviceId: getDeviceId(),
                 audioData: audioData || undefined,
+                frontendUrl: frontendOrigin,
+                origin: frontendOrigin,
               }),
             });
 
@@ -321,7 +330,8 @@ const Compose: React.FC = () => {
                 localStorage.setItem(`sf_card_audio_${result.cardId}`, audioData);
               } catch {}
             }
-            setShareUrl(result.shareUrl);
+            const properShareUrl = resolveProperShareUrl(result.shareUrl, result.cardId, data);
+            setShareUrl(properShareUrl);
             setEmailResult(result.emailResult || null);
             window.dispatchEvent(new Event('order-completed'));
             setIsShareModalOpen(true);

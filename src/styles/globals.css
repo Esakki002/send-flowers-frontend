@@ -126,8 +126,18 @@ html { scroll-behavior: smooth; }
   box-shadow:
     0 20px 52px rgba(43, 27, 27, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transform: translateZ(0); /* Promote to compositor layer to prevent jank */
+}
+
+@media (max-width: 768px) {
+  .glass-panel,
+  .glass-preview,
+  .glass-card {
+    backdrop-filter: blur(6px); /* Faster rasterization on mobile GPU */
+    -webkit-backdrop-filter: blur(6px);
+  }
 }
 
 .glass-panel {
