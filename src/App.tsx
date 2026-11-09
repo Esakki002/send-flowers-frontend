@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import Home from './pages/Home';
-import Receiver from './pages/Receiver';
+
+const Receiver = lazy(() => import('./pages/Receiver'));
 
 // Helper component to sync URL language prefix with i18n
 const LanguageSync: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -24,13 +25,15 @@ const App: React.FC = () => {
     <I18nextProvider i18n={i18n}>
       <Router>
         <LanguageSync>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/:lang" element={<Home />} />
-            <Route path="/c/:id" element={<Receiver />} />
-            {/* Fallback to redirect unknown language prefixes to / */}
-            <Route path="/:lang/*" element={<Navigate to='/' replace />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen bg-[var(--background)] flex items-center justify-center" />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/:lang" element={<Home />} />
+              <Route path="/c/:id" element={<Receiver />} />
+              {/* Fallback to redirect unknown language prefixes to / */}
+              <Route path="/:lang/*" element={<Navigate to='/' replace />} />
+            </Routes>
+          </Suspense>
         </LanguageSync>
       </Router>
     </I18nextProvider>

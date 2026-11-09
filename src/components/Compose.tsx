@@ -74,6 +74,23 @@ const Compose: React.FC = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordingTime, setRecordingTime] = useState<number>(0);
   const [isPlayingPreview, setIsPlayingPreview] = useState<boolean>(false);
+  const [show3DPreview, setShow3DPreview] = useState<boolean>(false);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!previewContainerRef.current) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShow3DPreview(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    io.observe(previewContainerRef.current);
+    return () => io.disconnect();
+  }, []);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -683,8 +700,15 @@ const Compose: React.FC = () => {
 
           <div className="glass-panel flex min-w-0 flex-col items-center gap-4 p-5 md:sticky md:top-24 md:p-6">
             <h3 className="text-xl font-semibold text-[var(--primary)]">Live preview</h3>
-            <div className="glass-preview aspect-square w-full max-w-md overflow-hidden rounded-2xl">
-              <RoseViewer className="h-full w-full" />
+            <div
+              ref={previewContainerRef}
+              className="glass-preview aspect-square w-full max-w-md overflow-hidden rounded-2xl"
+            >
+              {show3DPreview ? (
+                <RoseViewer className="h-full w-full" />
+              ) : (
+                <div className="h-full w-full bg-[var(--soft-pink)] animate-pulse" />
+              )}
             </div>
             <div className="glass-card w-full max-w-md rounded-xl p-4 text-left">
               <div className="mb-2 flex items-center gap-2">

@@ -10,155 +10,92 @@ interface CachedTextures {
   occlusion: THREE.Texture;
 }
 
-// Module-level singletons to prevent duplicate downloads and decodes
+// Module-level shared cache: loads full-quality textures & model once, reuses across views
 let cachedTexturesPromise: Promise<CachedTextures> | null = null;
 let cachedModelPromise: Promise<THREE.Group> | null = null;
-let sharedDracoLoader: DRACOLoader | null = null;
 
-const getSharedDracoLoader = (): DRACOLoader => {
-  if (!sharedDracoLoader) {
-    sharedDracoLoader = new DRACOLoader();
-    // Serve from local public folder for instant edge loading; falls back if necessary
-    sharedDracoLoader.setDecoderPath('/draco/gltf/');
-  }
-  return sharedDracoLoader;
-};
-
-const getSharedTextures = (): Promise<CachedTextures> => {
+const getSharedTextures = (assetsBase: string, maxAnisotropy: number): Promise<CachedTextures> => {
   if (!cachedTexturesPromise) {
     cachedTexturesPromise = new Promise((resolve) => {
-      // Local web-optimized textures are served at root /textures/...
-      const texturesBase = (
-        (import.meta.env.VITE_TEXTURES_BASE_URL as string) ||
-        '/textures'
-      ).replace(/\/+$/, '');
-
-      const fallbackBase = (
-        (import.meta.env.VITE_ASSETS_BASE_URL as string) ||
-        '/models'
-      ).replace(/\/+$/, '');
-
       const texLoader = new THREE.TextureLoader();
       texLoader.setCrossOrigin('anonymous');
 
-      const loadWithFallback = (filename: string, srgb: boolean): Promise<THREE.Texture> => {
-        return new Promise((res) => {
-          texLoader.load(
-            `${texturesBase}/${filename}`,
-            (tex) => {
-              tex.flipY = false;
-              tex.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
-              tex.generateMipmaps = true;
-              tex.minFilter = THREE.LinearMipmapLinearFilter;
-              tex.magFilter = THREE.LinearFilter;
-              res(tex);
-            },
-            undefined,
-            () => {
-              // Fallback to remote assets base if local isn't found
-              texLoader.load(
-                `${fallbackBase}/${filename}`,
-                (fallbackTex) => {
-                  fallbackTex.flipY = false;
-                  fallbackTex.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
-                  res(fallbackTex);
-                },
-                undefined,
-                () => {
-                  // Fallback to basic 1x1 data texture on total error
-                  const empty = new THREE.DataTexture(new Uint8Array([200, 50, 70, 255]), 1, 1);
-                  empty.needsUpdate = true;
-                  res(empty);
-                }
-              );
-            }
-          );
-        });
+      const prep = (url: string, srgb: boolean) => {
+        const t = texLoader.load(url);
+        t.flipY = false;
+        t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+        t.anisotropy = maxAnisotropy;
+        return t;
       };
 
-      Promise.all([
-        loadWithFallback('Red_rose_diffuse.jpeg', true),
-        loadWithFallback('Red_rose_normal.png', false),
-        loadWithFallback('Red_rose_occlusion.png', false),
-      ]).then(([diffuse, normal, occlusion]) => {
-        resolve({ diffuse, normal, occlusion });
-      });
+      const diffuse = prep(`${assetsBase}/Red_rose_diffuse.jpeg`, true);
+      const normal = prep(`${assetsBase}/Red_rose_normal.png`, false);
+      const occlusion = prep(`${assetsBase}/Red_rose_occlusion.png`, false);
+
+      resolve({ diffuse, normal, occlusion });
     });
   }
   return cachedTexturesPromise;
 };
 
-const getSharedMasterModel = (): Promise<THREE.Group> => {
+const getSharedMasterModel = (assetsBase: string, maxAnisotropy: number): Promise<THREE.Group> => {
   if (!cachedModelPromise) {
-    cachedModelPromise = new Promise((resolve, reject) => {
-      const assetsBase = (
-        (import.meta.env.VITE_ASSETS_BASE_URL as string) ||
-        '/models'
-      ).replace(/\/+$/, '');
-
-      const draco = getSharedDracoLoader();
+    cachedModelPromise = new Promise((resolve) => {
+      const draco = new DRACOLoader();
+      draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
       const loader = new GLTFLoader();
       loader.setDRACOLoader(draco);
 
-      // Concurrently load textures and model
-      Promise.all([
-        getSharedTextures(),
-        new Promise<THREE.Group>((resModel, rejModel) => {
-          loader.load(
-            `${assetsBase}/rose.glb`,
-            (gltf) => resModel(gltf.scene),
-            undefined,
-            (err) => rejModel(err)
-          );
-        }),
-      ])
-        .then(([textures, rawModel]) => {
-          rawModel.traverse((obj) => {
-            const mesh = obj as THREE.Mesh;
-            if (!mesh.isMesh) return;
-            const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-            mats.forEach((m) => {
-              const mat = m as THREE.MeshStandardMaterial;
-              if (!mat.map) mat.map = textures.diffuse;
-              if (!mat.normalMap) mat.normalMap = textures.normal;
-              if (!mat.aoMap) mat.aoMap = textures.occlusion;
-              mat.roughness = Math.max(mat.roughness ?? 0.6, 0.4);
-              mat.metalness = Math.min(mat.metalness ?? 0.1, 0.15);
-              mat.needsUpdate = true;
+      getSharedTextures(assetsBase, maxAnisotropy).then((textures) => {
+        loader.load(
+          `${assetsBase}/rose.glb`,
+          (gltf) => {
+            const model = gltf.scene;
+
+            model.traverse((obj) => {
+              const mesh = obj as THREE.Mesh;
+              if (!mesh.isMesh) return;
+              const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+              mats.forEach((m) => {
+                const mat = m as THREE.MeshStandardMaterial;
+                if (!mat.map) mat.map = textures.diffuse;
+                if (!mat.normalMap) mat.normalMap = textures.normal;
+                if (!mat.aoMap) mat.aoMap = textures.occlusion;
+                mat.needsUpdate = true;
+              });
             });
-          });
 
-          // Scale and center master model
-          const size = new THREE.Box3().setFromObject(rawModel).getSize(new THREE.Vector3());
-          rawModel.scale.setScalar(1.5 / Math.max(size.x, size.y, size.z));
-          const center = new THREE.Box3().setFromObject(rawModel).getCenter(new THREE.Vector3());
-          rawModel.position.sub(center);
+            // Scale first, THEN center using bounding box
+            const size = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
+            model.scale.setScalar(1.5 / Math.max(size.x, size.y, size.z));
+            const center = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
+            model.position.sub(center);
 
-          resolve(rawModel);
-        })
-        .catch((err) => {
-          console.error('Error loading rose 3D model:', err);
-          // Fallback dummy sphere group
-          const fallbackGroup = new THREE.Group();
-          const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(0.5, 24, 24),
-            new THREE.MeshStandardMaterial({ color: 0xc65b75, roughness: 0.5 })
-          );
-          fallbackGroup.add(sphere);
-          resolve(fallbackGroup);
-        });
+            resolve(model);
+          },
+          undefined,
+          (err) => {
+            console.error('Error loading rose model:', err);
+            const fallbackGroup = new THREE.Group();
+            fallbackGroup.add(
+              new THREE.Mesh(
+                new THREE.SphereGeometry(0.5, 32, 32),
+                new THREE.MeshStandardMaterial({ color: 0xffc1b0 })
+              )
+            );
+            resolve(fallbackGroup);
+          }
+        );
+      });
     });
   }
   return cachedModelPromise;
 };
 
 /**
- * Mobile-optimized, high-performance 3D rose viewer.
- * Features:
- *  - IntersectionObserver: automatically pauses rendering when off-screen to eliminate mobile scroll lag.
- *  - Global texture & model caching: 0 duplicate network requests or decodes.
- *  - Dynamic pixel ratio: prevents 3x overdraw and GPU thermal throttling on mobile devices.
- *  - Local edge-cached assets: sub-second model load times.
+ * 3D Rose Viewer.
+ * Visual Quality: 100% full original fidelity (full-res textures, ACES tone mapping, antialiasing, RoomEnvironment).
+ * Site Performance: Automatically pauses WebGL animation when off-screen to eliminate mobile scroll lag.
  */
 const RoseViewer: React.FC<{
   className?: string;
@@ -176,12 +113,6 @@ const RoseViewer: React.FC<{
     if (!containerRef.current) return;
     const container = containerRef.current;
 
-    // Detect mobile viewport or low-power device
-    const isMobile =
-      typeof window !== 'undefined' &&
-      (window.innerWidth < 768 ||
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-
     // ---------- Scene / camera / renderer ----------
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -198,15 +129,10 @@ const RoseViewer: React.FC<{
     };
     placeCamera(4);
 
-    // On mobile devices, disable antialiasing and cap pixel ratio at 1.25 for 60+ FPS smooth scrolling
-    const renderer = new THREE.WebGLRenderer({
-      antialias: !isMobile,
-      alpha: true,
-      powerPreference: 'high-performance',
-      precision: isMobile ? 'mediump' : 'highp',
-    });
+    // Full-quality renderer settings: pristine antialiasing, crisp pixel ratio
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.75));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0xfff8f2, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -214,27 +140,30 @@ const RoseViewer: React.FC<{
     renderer.domElement.style.touchAction = 'pan-y';
     container.appendChild(renderer.domElement);
 
-    // ---------- Lights ----------
+    // ---------- Lights (stay fixed while the rose rotates) ----------
     const key = new THREE.DirectionalLight(0xffc1b0, 1.2);
     key.position.set(2, 3, 2);
     const rim = new THREE.DirectionalLight(0xffe0b0, 0.6);
     rim.position.set(-2, 2, -2);
     scene.add(key, rim, new THREE.AmbientLight(0xffffff, 0.4));
 
-    // ---------- Environment ----------
+    // ---------- Environment (needed for PBR materials) ----------
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-    // ---------- Pivot ----------
+    // ---------- Pivot: the rose is centered inside it, the pivot spins ----------
     const pivot = new THREE.Group();
     scene.add(pivot);
 
+    const assetsBase = (import.meta.env.VITE_ASSETS_BASE_URL || '/models').replace(/\/+$/, '');
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+
     let isDisposed = false;
 
-    // Load master model from cache (instant if already downloaded)
-    getSharedMasterModel().then((master) => {
+    // Load full-quality model from cache
+    getSharedMasterModel(assetsBase, maxAnisotropy).then((masterModel) => {
       if (isDisposed) return;
-      const model = master.clone(true);
+      const model = masterModel.clone(true);
 
       const radius = new THREE.Box3()
         .setFromObject(model)
@@ -262,7 +191,7 @@ const RoseViewer: React.FC<{
     const startAnimation = () => {
       if (isRunning) return;
       isRunning = true;
-      clock.getDelta(); // reset delta to prevent spin jumps
+      clock.getDelta();
       render();
     };
 
@@ -271,7 +200,7 @@ const RoseViewer: React.FC<{
       if (raf) cancelAnimationFrame(raf);
     };
 
-    // Pause WebGL rendering whenever the canvas is scrolled out of view!
+    // Off-screen pause: only renders when visible, leaving scroll 100% buttery smooth
     const io = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
@@ -327,14 +256,12 @@ const RoseViewer: React.FC<{
 
   return (
     <div
-      className={`relative select-none pointer-events-none ${className}`}
+      className={`relative pointer-events-none select-none ${className}`}
       ref={containerRef}
       style={{ touchAction: 'pan-y' }}
     >
       {loading && (
-        <div
-          className={`absolute inset-0 flex items-center justify-center animate-pulse ${loadingClassName}`}
-        />
+        <div className={`absolute inset-0 flex items-center justify-center animate-pulse ${loadingClassName}`} />
       )}
     </div>
   );
