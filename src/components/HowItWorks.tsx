@@ -19,37 +19,37 @@ const HowItWorks: React.FC = () => {
         </p>
         <div className="grid md:grid-cols-2 gap-6 pt-8">
           {/* Step 1 */}
-          <div className="rounded-2xl border border-[var(--secondary)]/25 bg-gradient-to-br from-white via-[var(--soft-pink)]/40 to-[var(--soft-pink)] p-7 text-left shadow-sm hover:shadow-md transition-all">
+          <div className="rounded-2xl border border-[var(--secondary)]/25 dark:border-rose-300/30 bg-gradient-to-br from-[#FFFDFC] via-[#FAF3EE] to-[#EFE3D9] dark:from-white/[0.14] dark:via-white/[0.08] dark:to-white/[0.04] backdrop-blur-md p-7 text-left shadow-[0_12px_32px_rgba(74,18,43,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.3)] hover:border-[var(--secondary)]/45 dark:hover:border-rose-300/50 hover:-translate-y-0.5 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)]">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--primary)]/10 dark:bg-rose-400/25 border border-[var(--primary)]/15 dark:border-rose-300/35 text-[var(--primary)] dark:text-rose-100">
                 STEP 01
               </span>
-              <div className="w-9 h-9 rounded-full bg-[var(--secondary)]/15 text-[var(--secondary)] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-[var(--secondary)]/15 dark:bg-rose-400/20 text-[var(--secondary)] dark:text-rose-200 flex items-center justify-center">
                 <VoiceIcon className="w-5 h-5" />
               </div>
             </div>
             <h3 className="text-xl font-serif font-semibold text-[var(--primary)] mb-2">
               {t('howItWorks.step1')}
             </h3>
-            <p className="text-sm leading-relaxed text-[var(--muted)]">
+            <p className="text-sm leading-relaxed text-[var(--muted)] font-medium">
               {t('howItWorks.step1Desc')}
             </p>
           </div>
 
           {/* Step 2 */}
-          <div className="rounded-2xl border border-[var(--secondary)]/25 bg-gradient-to-br from-white via-[var(--soft-pink)]/40 to-[var(--soft-pink)] p-7 text-left shadow-sm hover:shadow-md transition-all">
+          <div className="rounded-2xl border border-[var(--secondary)]/25 dark:border-rose-300/30 bg-gradient-to-br from-[#FFFDFC] via-[#FAF3EE] to-[#EFE3D9] dark:from-white/[0.14] dark:via-white/[0.08] dark:to-white/[0.04] backdrop-blur-md p-7 text-left shadow-[0_12px_32px_rgba(74,18,43,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.3)] hover:border-[var(--secondary)]/45 dark:hover:border-rose-300/50 hover:-translate-y-0.5 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)]">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--primary)]/10 dark:bg-rose-400/25 border border-[var(--primary)]/15 dark:border-rose-300/35 text-[var(--primary)] dark:text-rose-100">
                 STEP 02
               </span>
-              <div className="w-9 h-9 rounded-full bg-[var(--secondary)]/15 text-[var(--secondary)] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-[var(--secondary)]/15 dark:bg-rose-400/20 text-[var(--secondary)] dark:text-rose-200 flex items-center justify-center">
                 <LinkIcon className="w-5 h-5" />
               </div>
             </div>
             <h3 className="text-xl font-serif font-semibold text-[var(--primary)] mb-2">
               {t('howItWorks.step2')}
             </h3>
-            <p className="text-sm leading-relaxed text-[var(--muted)]">
+            <p className="text-sm leading-relaxed text-[var(--muted)] font-medium">
               {t('howItWorks.step2Desc')}
             </p>
           </div>

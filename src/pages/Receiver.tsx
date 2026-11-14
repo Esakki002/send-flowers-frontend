@@ -102,11 +102,11 @@ const Receiver: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-[#150c12] px-4 text-white gap-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#5B1835] to-[#c65b75] flex items-center justify-center text-[#fce7f3] shadow-lg shadow-pink-950/40 animate-bounce">
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-[#251722] px-4 text-white gap-3">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#831843] to-[#f47293] flex items-center justify-center text-[#fce7f3] shadow-lg shadow-pink-950/40 animate-bounce">
           <RoseIcon className="w-6 h-6" />
         </div>
-        <p className="text-center font-serif text-sm tracking-wide text-[#d0a6b2] animate-pulse">
+        <p className="text-center font-serif text-sm tracking-wide text-[#fceef2] animate-pulse">
           Opening your rose card...
         </p>
       </main>
@@ -115,8 +115,8 @@ const Receiver: React.FC = () => {
 
   if (invalidLink || !card) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#150c12] px-4 text-white">
-        <p role="alert" className="text-center text-[#d0a6b2]">
+      <main className="flex min-h-dvh items-center justify-center bg-[#251722] px-4 text-white">
+        <p role="alert" className="text-center text-[#fceef2]">
           This rose card link is invalid or incomplete.
         </p>
       </main>
@@ -124,13 +124,13 @@ const Receiver: React.FC = () => {
   }
 
   return (
-    <main className="relative flex min-h-dvh items-center justify-center bg-[radial-gradient(ellipse_at_50%_0%,#321522_0%,#1d1018_38%,#100b0e_100%)] p-2 sm:p-3">
-      <article className="flex min-h-[calc(100dvh-1rem)] w-full max-w-[500px] flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-[#c65b75]/20 bg-[#160e12] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.7)] sm:min-h-[calc(100dvh-1.5rem)] sm:gap-4 sm:p-4">
+    <main className="relative flex min-h-dvh items-center justify-center bg-[radial-gradient(ellipse_at_50%_0%,#4a2238_0%,#2e1927_45%,#22131e_100%)] p-2 sm:p-3">
+      <article className="flex min-h-[calc(100dvh-1rem)] w-full max-w-[500px] flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-[#f47293]/30 bg-[#2c1825]/90 backdrop-blur-md p-3 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:min-h-[calc(100dvh-1.5rem)] sm:gap-4 sm:p-4">
         {/* 3D Rose Canvas */}
-        <section className="relative min-h-[45vh] flex-1 overflow-hidden rounded-[1.35rem] bg-[#180e13]">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(112,38,64,0.24),transparent_68%)]" />
+        <section className="relative min-h-[45vh] flex-1 overflow-hidden rounded-[1.35rem] bg-[#341d2d]/80 border border-[#f47293]/15">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(244,114,147,0.18),transparent_68%)]" />
           <div className="absolute inset-0 p-2 sm:p-4">
-            <RoseViewer className="h-full w-full" loadingClassName="bg-[#180e13]" />
+            <RoseViewer className="h-full w-full" loadingClassName="bg-[#341d2d]" />
           </div>
 
           {/* Quick Voice Note Floating Pill if voice attached */}
@@ -138,29 +138,29 @@ const Receiver: React.FC = () => {
         </section>
 
         {/* Message Card */}
-        <section className="rounded-[1.35rem] border border-[#c65b75]/20 bg-[#1d1117] px-5 py-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:px-6 sm:py-6">
+        <section className="rounded-[1.35rem] border border-[#f47293]/25 bg-[#361e2f]/85 px-5 py-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:px-6 sm:py-6">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <HeartIcon className="h-3 w-3 shrink-0 text-[#b58b54]" />
-              <p className="truncate text-[0.6rem] uppercase tracking-[0.28em] text-[#b08491]">
+              <HeartIcon className="h-3 w-3 shrink-0 text-[#fae0b2]" />
+              <p className="truncate text-[0.6rem] uppercase tracking-[0.28em] text-[#fae0b2]">
                 {card?.recipientName ?? 'Someone special'}
               </p>
             </div>
           </div>
 
-          <p className="text-base text-[#eee7e5] sm:text-lg">
-            <span className="font-serif italic text-[#d0a6b2]">{card?.senderName ?? 'Someone'}</span>
+          <p className="text-base text-white sm:text-lg">
+            <span className="font-serif italic text-[#fae0b2]">{card?.senderName ?? 'Someone'}</span>
             {' sent you a rose'}
           </p>
 
-          <hr className="my-4 border-0 border-t border-[#c65b75]/45" />
+          <hr className="my-4 border-0 border-t border-[#f47293]/35" />
 
-          <p className="whitespace-pre-wrap break-words font-serif text-sm italic leading-relaxed text-[#c5b5ba] sm:text-base">
+          <p className="whitespace-pre-wrap break-words font-serif text-sm italic leading-relaxed text-[#fceef2] sm:text-base">
             {card?.message ?? 'A message for that special person...'}
           </p>
 
           <div className="mt-2 text-right">
-            <span className="font-serif italic text-xs sm:text-sm text-[#b08491]">
+            <span className="font-serif italic text-xs sm:text-sm text-[#fae0b2]">
               — {card?.senderName ?? 'Someone'}
             </span>
           </div>

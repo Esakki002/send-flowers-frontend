@@ -20,6 +20,7 @@ interface OrderItem {
   share_url: string;
   paid_at?: string;
   status: string;
+  amount?: number;
 }
 
 const OrderHistory: React.FC = () => {
@@ -217,8 +218,8 @@ const OrderHistory: React.FC = () => {
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950/40 text-emerald-400 border border-emerald-500/30">
-                    ✓ Paid ₹100
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100/90 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-400/30">
+                    ✓ Paid ₹{order.amount || 99}
                   </span>
                   <span className="text-[0.7rem] uppercase tracking-wider text-[var(--muted)]">
                     {order.delivery === 'email' ? '✉️ Email' : order.delivery === 'qr' ? '📱 QR Code' : '🔗 Link'}
@@ -235,7 +236,7 @@ const OrderHistory: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="p-3 bg-[var(--soft-pink)] rounded-xl my-3 text-xs italic text-[var(--text)] line-clamp-3">
+                <div className="p-3 bg-[var(--soft-pink)]/40 dark:bg-white/5 rounded-xl my-3 text-xs italic text-[var(--text)] line-clamp-3 border border-[var(--secondary)]/15 dark:border-white/10">
                   &ldquo;{order.message}&rdquo;
                 </div>
 
@@ -244,13 +245,13 @@ const OrderHistory: React.FC = () => {
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-[var(--secondary)]/15 space-y-2">
+              <div className="pt-3 border-t border-[var(--secondary)]/15 dark:border-rose-300/20 space-y-2">
                 <div className="flex gap-2">
                   <a
                     href={order.share_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex-1 py-2 text-center text-xs font-semibold rounded-lg bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--secondary)] transition flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2 text-center text-xs font-semibold rounded-lg bg-gradient-to-r from-[#831843] to-[#be123c] dark:from-[#e0597d] dark:to-[#a0325d] text-white hover:brightness-110 transition flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     <span>View Rose</span>
                     <RoseIcon className="w-3.5 h-3.5" />
@@ -258,7 +259,7 @@ const OrderHistory: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleCopyLink(order)}
-                    className="px-3 py-2 text-xs font-semibold rounded-lg border border-[var(--secondary)]/30 hover:bg-[var(--soft-pink)] text-[var(--primary)] transition flex items-center gap-1"
+                    className="px-3 py-2 text-xs font-semibold rounded-lg border border-[var(--secondary)]/30 dark:border-rose-300/30 hover:bg-[var(--soft-pink)] dark:hover:bg-white/10 text-[var(--text)] transition flex items-center gap-1"
                     title="Copy Card Link"
                   >
                     {copiedId === order.order_id ? (

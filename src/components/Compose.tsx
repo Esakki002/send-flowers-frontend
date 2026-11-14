@@ -230,7 +230,7 @@ const Compose: React.FC = () => {
           language: data.language,
           email: data.email,
           delivery: data.delivery,
-          amount: 100,
+          amount: 99,
           deviceId: getDeviceId(),
           audioData: audioData || undefined,
           frontendUrl: frontendOrigin,
@@ -490,7 +490,7 @@ const Compose: React.FC = () => {
               </div>
 
               {/* Optional Voice Note Recorder */}
-              <div className="rounded-xl border border-[var(--secondary)]/30 bg-[var(--soft-pink)]/40 p-3.5 space-y-2">
+              <div className="rounded-xl border border-[var(--secondary)]/25 dark:border-rose-300/30 bg-[rgba(255,250,246,0.65)] dark:bg-white/[0.08] p-3.5 space-y-2 backdrop-blur-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <VoiceIcon className="w-4 h-4 text-[var(--secondary)]" />
@@ -499,7 +499,7 @@ const Compose: React.FC = () => {
                     </span>
                   </div>
                   {audioData && (
-                    <span className="text-[0.65rem] text-emerald-700 font-semibold bg-emerald-100/80 border border-emerald-300 px-2 py-0.5 rounded-full">
+                    <span className="text-[0.65rem] text-emerald-800 dark:text-emerald-300 font-semibold bg-emerald-100/90 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-400/30 px-2 py-0.5 rounded-full">
                       ✓ Attached
                     </span>
                   )}
@@ -557,7 +557,7 @@ const Compose: React.FC = () => {
                     <button
                       type="button"
                       onClick={startRecording}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-dashed border-[var(--secondary)] text-xs text-[var(--primary)] font-medium hover:bg-[var(--soft-pink)] transition"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-dashed border-rose-400/40 dark:border-rose-300/40 text-xs text-[var(--primary)] dark:text-rose-100 font-medium hover:bg-[var(--soft-pink)]/50 dark:hover:bg-white/10 transition"
                     >
                       <VoiceIcon className="w-4 h-4 text-[var(--secondary)]" />
                       <span>Click to record voice message (up to 60s)</span>
@@ -676,7 +676,7 @@ const Compose: React.FC = () => {
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full py-3.5 rounded-md bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--secondary)] disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-lg shadow-rose-900/20"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#831843] to-[#be123c] dark:from-[#e0597d] dark:to-[#a0325d] hover:brightness-110 text-white disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-lg shadow-rose-950/20 dark:shadow-rose-950/40"
               >
                 <span className="flex items-center justify-center space-x-2">
                   {isProcessing ? (
@@ -690,7 +690,7 @@ const Compose: React.FC = () => {
                   ) : (
                     <>
                       <SendIcon className="w-4 h-4" />
-                      <span>{t('hero.ctaSend')} • ₹100</span>
+                      <span>{t('hero.ctaSend')} • ₹99</span>
                     </>
                   )}
                 </span>
@@ -800,7 +800,7 @@ const Compose: React.FC = () => {
                     <button
                       type="button"
                       onClick={copyShareUrl}
-                      className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--background)] hover:bg-[var(--secondary)]"
+                      className="rounded-md bg-gradient-to-r from-[#e0597d] to-[#a0325d] px-3 py-2 text-xs font-semibold text-white hover:brightness-110 transition shadow-sm"
                     >
                       Copy
                     </button>
@@ -836,7 +836,7 @@ const Compose: React.FC = () => {
                   <button
                     type="button"
                     onClick={copyShareUrl}
-                    className="rounded-md bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--background)] hover:bg-[var(--secondary)]"
+                    className="rounded-md bg-gradient-to-r from-[#e0597d] to-[#a0325d] px-4 py-2 text-xs font-semibold text-white hover:brightness-110 transition shadow-sm"
                   >
                     Copy
                   </button>
@@ -858,7 +858,7 @@ const Compose: React.FC = () => {
                   <button
                     type="button"
                     onClick={copyShareUrl}
-                    className="rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--background)] hover:bg-[var(--secondary)]"
+                    className="rounded-md bg-gradient-to-r from-[#e0597d] to-[#a0325d] px-4 py-2 text-sm font-semibold text-white hover:brightness-110 transition shadow-sm"
                   >
                     Copy
                   </button>

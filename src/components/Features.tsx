@@ -61,13 +61,13 @@ const Features: React.FC = () => (
         {features.map(({ Icon, title, desc }) => (
           <div
             key={title}
-            className="rounded-2xl border border-[var(--secondary)]/25 bg-gradient-to-b from-white via-white to-[var(--soft-pink)]/30 p-6 text-center shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group"
+            className="rounded-2xl border border-[var(--secondary)]/25 dark:border-rose-300/30 bg-gradient-to-b from-[#FFFDFC] via-[#FAF3EE] to-[#EFE3D9] dark:from-white/[0.14] dark:to-white/[0.04] backdrop-blur-md p-6 text-center shadow-[0_12px_32px_rgba(74,18,43,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.2)] hover:border-[var(--secondary)]/45 dark:hover:border-rose-300/50 hover:-translate-y-1 transition-all group"
           >
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[var(--soft-pink)] to-white text-[var(--primary)] border border-[var(--secondary)]/20 shadow-sm group-hover:scale-110 transition-transform">
-              <Icon className="h-6 w-6 text-[var(--primary)]" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[var(--soft-pink)] to-[#FFFDFC] dark:from-white/25 dark:to-white/10 text-[var(--secondary)] dark:text-rose-200 border border-[var(--secondary)]/20 dark:border-rose-300/30 shadow-sm group-hover:scale-110 transition-transform">
+              <Icon className="h-6 w-6 text-[var(--secondary)] dark:text-rose-200" />
             </div>
             <h3 className="font-serif font-semibold text-lg text-[var(--primary)] mt-4">{title}</h3>
-            <p className="text-xs leading-relaxed text-[var(--muted)] mt-2">{desc}</p>
+            <p className="text-xs leading-relaxed text-[var(--muted)] font-medium mt-2">{desc}</p>
           </div>
         ))}
       </div>

@@ -11,23 +11,23 @@ const Hero: React.FC = () => {
       <div className="hero-content max-w-7xl mx-auto px-4 pt-24 pb-12 min-h-screen flex flex-col md:flex-row items-center justify-between">
         {/* Left Text */}
         <div className="hero-copy md:w-1/2 space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--secondary)]/10 border border-[var(--secondary)]/25 text-[var(--secondary)] text-xs font-semibold tracking-wider uppercase">
-            <HeartIcon className="w-3.5 h-3.5 text-[var(--secondary)]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--secondary)]/10 dark:bg-white/10 border border-[var(--secondary)]/25 dark:border-rose-300/35 text-[var(--secondary)] dark:text-rose-200 text-xs font-semibold tracking-wider uppercase">
+            <HeartIcon className="w-3.5 h-3.5 text-[var(--secondary)] dark:text-rose-300" />
             <span>{t('hero.eyebrow')}</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[var(--primary)] leading-[1.15]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[var(--primary)] leading-[1.15] tracking-tight">
             {t('hero.title')}
           </h1>
 
-          <p className="text-base sm:text-lg text-[var(--text)]/85 leading-relaxed">
+          <p className="text-base sm:text-lg text-[var(--text)] font-normal leading-relaxed">
             {t('hero.subtitle')}
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <a href="#create" className="hero-primary-cta py-3 px-7 rounded-xl font-medium gap-2 shadow-lg">
               <RoseIcon className="w-4 h-4 text-[#fce7f3]" />
-              <span>{t('hero.ctaSend')} • ₹100</span>
+              <span>{t('hero.ctaSend')} • ₹99</span>
             </a>
             <a href="#how-it-works" className="hero-secondary-cta py-3 px-6 rounded-xl font-medium">
               {t('hero.ctaHow')}

@@ -133,7 +133,7 @@ const RoseViewer: React.FC<{
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0xfff8f2, 0);
+    renderer.setClearColor(0x231720, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.domElement.style.pointerEvents = 'none';

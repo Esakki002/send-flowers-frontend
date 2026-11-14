@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getDeviceId } from '../utils/device';
 import { getApiUrl } from '../utils/api';
 import RoseIcon from '../icons/RoseIcon';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -42,7 +43,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-[rgba(255,248,242,0.92)] border-b border-[var(--secondary)]/15 shadow-xs">
+    <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-[rgba(247,239,234,0.94)] dark:bg-[rgba(19,10,17,0.92)] border-b border-[var(--secondary)]/15 dark:border-rose-400/20 shadow-xs dark:shadow-md transition-colors duration-200">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 gap-2 sm:gap-4">
         <RouterLink
           to="/"
@@ -73,16 +74,17 @@ const Navbar: React.FC = () => {
               Orders
             </a>
           )}
+          <ThemeToggle />
           <button
             onClick={switchLang}
             aria-label="Switch language"
-            className="inline-flex items-center justify-center h-8 px-2.5 text-xs font-semibold rounded-full border border-[var(--primary)]/15 bg-white/70 hover:bg-[var(--soft-pink)] hover:border-[var(--secondary)]/30 text-[var(--primary)] shadow-2xs transition-colors"
+            className="inline-flex items-center justify-center h-8 px-2.5 text-xs font-semibold rounded-full border border-[var(--primary)]/15 dark:border-rose-400/25 bg-[rgba(255,250,246,0.85)] dark:bg-white/10 hover:bg-[var(--soft-pink)] dark:hover:bg-white/15 text-[var(--primary)] dark:text-rose-100 shadow-2xs transition-colors"
           >
             {i18n.language === 'en' ? 'தமிழ்' : 'EN'}
           </button>
           <button
             onClick={scrollToCompose}
-            className="inline-flex items-center justify-center h-8 sm:h-9 bg-[var(--primary)] text-[var(--background)] rounded-lg sm:rounded-xl px-3 sm:px-4 text-xs sm:text-sm font-medium hover:bg-[var(--secondary)] shadow-xs hover:shadow transition active:scale-95 whitespace-nowrap"
+            className="hidden sm:inline-flex items-center justify-center h-8 sm:h-9 bg-gradient-to-r from-[#831843] to-[#be123c] dark:from-[#9f1239] dark:to-[#e11d48] hover:brightness-110 text-white rounded-lg sm:rounded-xl px-3 sm:px-4 text-xs sm:text-sm font-medium shadow-sm hover:shadow transition active:scale-95 whitespace-nowrap"
           >
             {t('navbar.sendRose')}
           </button>

@@ -3,7 +3,7 @@ import RoseIcon from '../icons/RoseIcon';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="py-10 bg-gradient-to-b from-[#4A142B] to-[#300C1B] text-[var(--background)] border-t border-[var(--secondary)]/20">
+    <footer className="py-10 bg-gradient-to-b from-[#2a1a25] to-[#1a1017] text-white border-t border-rose-300/20">
       <div className="max-w-5xl mx-auto px-4 text-center">
         <p className="inline-flex items-center justify-center gap-2 text-xl font-serif font-bold text-white tracking-wide">
           <RoseIcon className="w-6 h-6 text-[#f472b6]" />

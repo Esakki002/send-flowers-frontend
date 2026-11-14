@@ -4,11 +4,11 @@ import ChevronDownIcon from '../icons/ChevronDownIcon';
 const faqItems = [
   {
     q: 'How much does it cost to send a rose?',
-    a: 'Sending a personalized 3D rose with message and voice note costs a simple one-time payment of ₹100.',
+    a: 'Sending a personalized 3D rose with message and voice note costs a simple one-time payment of ₹99.',
   },
   {
     q: 'Will I get a refund if the rose is not delivered?',
-    a: 'Yes. If your rose delivery fails or cannot be reached, the ₹100 payment will be promptly refunded.',
+    a: 'Yes. If your rose delivery fails or cannot be reached, the ₹99 payment will be promptly refunded.',
   },
   {
     q: 'Does the recipient need an app or account?',
@@ -47,8 +47,8 @@ const FAQ: React.FC = () => {
                 key={i}
                 className={`rounded-xl border transition-all duration-200 ${
                   isOpen
-                    ? 'border-[var(--secondary)]/40 bg-[var(--soft-pink)]/40 shadow-sm'
-                    : 'border-[var(--secondary)]/20 bg-white/60 hover:bg-white hover:border-[var(--secondary)]/35'
+                    ? 'border-[var(--secondary)]/40 dark:border-rose-400/40 bg-[var(--soft-pink)]/60 dark:bg-rose-950/30 shadow-sm'
+                    : 'border-[var(--secondary)]/20 dark:border-rose-400/20 bg-[#FFFDFC]/80 dark:bg-white/[0.06] hover:bg-[#FFFDFC] dark:hover:bg-white/[0.12] hover:border-[var(--secondary)]/35 dark:hover:border-rose-400/35'
                 }`}
               >
                 <button
@@ -67,7 +67,7 @@ const FAQ: React.FC = () => {
                   </div>
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-1 text-sm leading-relaxed text-[var(--text)] border-t border-[var(--secondary)]/10">
+                  <div className="px-5 pb-5 pt-1 text-sm leading-relaxed text-[var(--text)] border-t border-[var(--secondary)]/10 dark:border-rose-400/15">
                     {item.a}
                   </div>
                 )}

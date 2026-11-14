@@ -21,7 +21,7 @@ services:
       - key: FRONTEND_URL
         sync: false
       - key: ROSE_PRICE_INR
-        value: "100"
+        value: "99"
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
