@@ -5,11 +5,11 @@ const Footer: React.FC = () => {
   return (
     <footer className="py-10 bg-gradient-to-b from-[#2a1a25] to-[#1a1017] text-white border-t border-rose-300/20">
       <div className="max-w-5xl mx-auto px-4 text-center">
-        <p className="inline-flex items-center justify-center gap-2 text-xl font-serif font-bold text-white tracking-wide">
+        <p className="inline-flex items-center justify-center gap-2 text-xl font-sans font-bold text-white tracking-wide">
           <RoseIcon className="w-6 h-6 text-[#f472b6]" />
           <span>SendFlowers</span>
         </p>
-        <p className="text-sm mt-2 text-[#fce7f3]/80 font-serif italic">
+        <p className="text-sm mt-2 text-[#fce7f3]/80 font-sans italic">
           A timeless 3D rose that never wilts. Delivered with your heartfelt words and voice note.
         </p>
         <div className="flex justify-center items-center gap-6 mt-6 text-xs text-[#fce7f3]/60">

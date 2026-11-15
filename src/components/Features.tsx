@@ -66,7 +66,7 @@ const Features: React.FC = () => (
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[var(--soft-pink)] to-[#FFFDFC] dark:from-white/25 dark:to-white/10 text-[var(--secondary)] dark:text-rose-200 border border-[var(--secondary)]/20 dark:border-rose-300/30 shadow-sm group-hover:scale-110 transition-transform">
               <Icon className="h-6 w-6 text-[var(--secondary)] dark:text-rose-200" />
             </div>
-            <h3 className="font-serif font-semibold text-lg text-[var(--primary)] mt-4">{title}</h3>
+            <h3 className="font-sans font-semibold text-lg text-[var(--primary)] mt-4">{title}</h3>
             <p className="text-xs leading-relaxed text-[var(--muted)] font-medium mt-2">{desc}</p>
           </div>
         ))}

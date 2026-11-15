@@ -28,7 +28,7 @@ const HowItWorks: React.FC = () => {
                 <VoiceIcon className="w-5 h-5" />
               </div>
             </div>
-            <h3 className="text-xl font-serif font-semibold text-[var(--primary)] mb-2">
+            <h3 className="text-xl font-sans font-semibold text-[var(--primary)] mb-2">
               {t('howItWorks.step1')}
             </h3>
             <p className="text-sm leading-relaxed text-[var(--muted)] font-medium">
@@ -46,7 +46,7 @@ const HowItWorks: React.FC = () => {
                 <LinkIcon className="w-5 h-5" />
               </div>
             </div>
-            <h3 className="text-xl font-serif font-semibold text-[var(--primary)] mb-2">
+            <h3 className="text-xl font-sans font-semibold text-[var(--primary)] mb-2">
               {t('howItWorks.step2')}
             </h3>
             <p className="text-sm leading-relaxed text-[var(--muted)] font-medium">

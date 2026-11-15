@@ -29,7 +29,7 @@ const Pricing: React.FC = () => {
           </div>
 
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-4xl font-serif font-bold text-[var(--primary)] tracking-tight">₹99</span>
+            <span className="text-4xl font-sans font-bold text-[var(--primary)] tracking-tight">₹99</span>
             <span className="text-xs text-[var(--muted)] font-semibold">one-time payment</span>
           </div>
 

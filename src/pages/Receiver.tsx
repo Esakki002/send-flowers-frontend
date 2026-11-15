@@ -106,7 +106,7 @@ const Receiver: React.FC = () => {
         <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#831843] to-[#f47293] flex items-center justify-center text-[#fce7f3] shadow-lg shadow-pink-950/40 animate-bounce">
           <RoseIcon className="w-6 h-6" />
         </div>
-        <p className="text-center font-serif text-sm tracking-wide text-[#fceef2] animate-pulse">
+        <p className="text-center font-sans text-sm tracking-wide text-[#fceef2] animate-pulse">
           Opening your rose card...
         </p>
       </main>
@@ -124,55 +124,51 @@ const Receiver: React.FC = () => {
   }
 
   return (
-    <main className="relative flex min-h-dvh items-center justify-center bg-[radial-gradient(ellipse_at_50%_0%,#4a2238_0%,#2e1927_45%,#22131e_100%)] p-2 sm:p-3">
-      <article className="flex min-h-[calc(100dvh-1rem)] w-full max-w-[500px] flex-col gap-3 overflow-hidden rounded-[1.75rem] border border-[#f47293]/30 bg-[#2c1825]/90 backdrop-blur-md p-3 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:min-h-[calc(100dvh-1.5rem)] sm:gap-4 sm:p-4">
-        {/* 3D Rose Canvas */}
-        <section className="relative min-h-[45vh] flex-1 overflow-hidden rounded-[1.35rem] bg-[#341d2d]/80 border border-[#f47293]/15">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(244,114,147,0.18),transparent_68%)]" />
-          <div className="absolute inset-0 p-2 sm:p-4">
-            <RoseViewer className="h-full w-full" loadingClassName="bg-[#341d2d]" />
-          </div>
+    <main className="relative min-h-dvh w-full flex flex-col justify-between bg-[radial-gradient(ellipse_at_50%_25%,#4a2238_0%,#2c1825_55%,#1c1019_100%)] text-white overflow-x-hidden">
+      {/* 3D Rose Canvas Area - Occupies upper viewport full-width */}
+      <section className="relative w-full flex-1 min-h-[46vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(244,114,147,0.22),transparent_70%)] pointer-events-none" />
+        <RoseViewer className="h-full w-full" loadingClassName="bg-transparent" />
+      </section>
 
-          {/* Quick Voice Note Floating Pill if voice attached */}
-          
-        </section>
-
-        {/* Message Card */}
-        <section className="rounded-[1.35rem] border border-[#f47293]/25 bg-[#361e2f]/85 px-5 py-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:px-6 sm:py-6">
+      {/* Message and Controls Section - Seamless full-screen flow without a floating box */}
+      <section className="relative z-10 w-full px-5 pb-8 pt-2 sm:px-8 sm:pb-12">
+        <div className="mx-auto max-w-xl text-left">
+          {/* Recipient badge */}
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <HeartIcon className="h-3 w-3 shrink-0 text-[#fae0b2]" />
-              <p className="truncate text-[0.6rem] uppercase tracking-[0.28em] text-[#fae0b2]">
+              <HeartIcon className="h-3.5 w-3.5 shrink-0 text-[#fae0b2]" />
+              <p className="truncate text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[#fae0b2]">
                 {card?.recipientName ?? 'Someone special'}
               </p>
             </div>
           </div>
 
-          <p className="text-base text-white sm:text-lg">
-            <span className="font-serif italic text-[#fae0b2]">{card?.senderName ?? 'Someone'}</span>
+          <p className="text-lg text-white sm:text-xl">
+            <span className="font-sans italic font-medium text-[#fae0b2]">{card?.senderName ?? 'Someone'}</span>
             {' sent you a rose'}
           </p>
 
-          <hr className="my-4 border-0 border-t border-[#f47293]/35" />
+          <hr className="my-4 border-0 border-t border-[#f47293]/25" />
 
-          <p className="whitespace-pre-wrap break-words font-serif text-sm italic leading-relaxed text-[#fceef2] sm:text-base">
+          <p className="whitespace-pre-wrap break-words font-sans text-sm sm:text-base italic leading-relaxed text-[#fceef2]">
             {card?.message ?? 'A message for that special person...'}
           </p>
 
-          <div className="mt-2 text-right">
-            <span className="font-serif italic text-xs sm:text-sm text-[#fae0b2]">
+          <div className="mt-3 text-right">
+            <span className="font-sans italic text-xs sm:text-sm text-[#fae0b2]">
               — {card?.senderName ?? 'Someone'}
             </span>
           </div>
 
-          {/* Voice Message Player embedded in card matching design */}
+          {/* Voice Message Player */}
           {card.audioData && (
-            <div id="voice-message-container" className="mt-4 pt-1">
+            <div id="voice-message-container" className="mt-5 pt-1">
               <VoicePlayer audioSrc={card.audioData} />
             </div>
           )}
-        </section>
-      </article>
+        </div>
+      </section>
     </main>
   );
 };

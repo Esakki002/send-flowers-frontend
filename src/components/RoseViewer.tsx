@@ -4,89 +4,55 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment';
 
-interface CachedTextures {
-  diffuse: THREE.Texture;
-  normal: THREE.Texture;
-  occlusion: THREE.Texture;
-}
-
-// Module-level shared cache: loads full-quality textures & model once, reuses across views
-let cachedTexturesPromise: Promise<CachedTextures> | null = null;
+// Module-level shared cache: loads full-quality model once, reuses across views
 let cachedModelPromise: Promise<THREE.Group> | null = null;
-
-const getSharedTextures = (assetsBase: string, maxAnisotropy: number): Promise<CachedTextures> => {
-  if (!cachedTexturesPromise) {
-    cachedTexturesPromise = new Promise((resolve) => {
-      const texLoader = new THREE.TextureLoader();
-      texLoader.setCrossOrigin('anonymous');
-
-      const prep = (url: string, srgb: boolean) => {
-        const t = texLoader.load(url);
-        t.flipY = false;
-        t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
-        t.anisotropy = maxAnisotropy;
-        return t;
-      };
-
-      const diffuse = prep(`${assetsBase}/Red_rose_diffuse.jpeg`, true);
-      const normal = prep(`${assetsBase}/Red_rose_normal.png`, false);
-      const occlusion = prep(`${assetsBase}/Red_rose_occlusion.png`, false);
-
-      resolve({ diffuse, normal, occlusion });
-    });
-  }
-  return cachedTexturesPromise;
-};
 
 const getSharedMasterModel = (assetsBase: string, maxAnisotropy: number): Promise<THREE.Group> => {
   if (!cachedModelPromise) {
     cachedModelPromise = new Promise((resolve) => {
       const draco = new DRACOLoader();
-      draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+      draco.setDecoderPath('/draco/gltf/');
       const loader = new GLTFLoader();
       loader.setDRACOLoader(draco);
 
-      getSharedTextures(assetsBase, maxAnisotropy).then((textures) => {
-        loader.load(
-          `${assetsBase}/rose.glb`,
-          (gltf) => {
-            const model = gltf.scene;
+      loader.load(
+        `${assetsBase}/rose.glb`,
+        (gltf) => {
+          const model = gltf.scene;
 
-            model.traverse((obj) => {
-              const mesh = obj as THREE.Mesh;
-              if (!mesh.isMesh) return;
-              const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-              mats.forEach((m) => {
-                const mat = m as THREE.MeshStandardMaterial;
-                if (!mat.map) mat.map = textures.diffuse;
-                if (!mat.normalMap) mat.normalMap = textures.normal;
-                if (!mat.aoMap) mat.aoMap = textures.occlusion;
-                mat.needsUpdate = true;
-              });
+          model.traverse((obj) => {
+            const mesh = obj as THREE.Mesh;
+            if (!mesh.isMesh) return;
+            const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            mats.forEach((m) => {
+              const mat = m as THREE.MeshStandardMaterial;
+              if (mat.map) mat.map.anisotropy = Math.min(maxAnisotropy, 4);
+              if (mat.normalMap) mat.normalMap.anisotropy = Math.min(maxAnisotropy, 4);
+              mat.needsUpdate = true;
             });
+          });
 
-            // Scale first, THEN center using bounding box
-            const size = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
-            model.scale.setScalar(1.5 / Math.max(size.x, size.y, size.z));
-            const center = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
-            model.position.sub(center);
+          // Scale first, THEN center using bounding box
+          const size = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3());
+          model.scale.setScalar(1.5 / Math.max(size.x, size.y, size.z));
+          const center = new THREE.Box3().setFromObject(model).getCenter(new THREE.Vector3());
+          model.position.sub(center);
 
-            resolve(model);
-          },
-          undefined,
-          (err) => {
-            console.error('Error loading rose model:', err);
-            const fallbackGroup = new THREE.Group();
-            fallbackGroup.add(
-              new THREE.Mesh(
-                new THREE.SphereGeometry(0.5, 32, 32),
-                new THREE.MeshStandardMaterial({ color: 0xffc1b0 })
-              )
-            );
-            resolve(fallbackGroup);
-          }
-        );
-      });
+          resolve(model);
+        },
+        undefined,
+        (err) => {
+          console.error('Error loading rose model:', err);
+          const fallbackGroup = new THREE.Group();
+          fallbackGroup.add(
+            new THREE.Mesh(
+              new THREE.SphereGeometry(0.5, 32, 32),
+              new THREE.MeshStandardMaterial({ color: 0xffc1b0 })
+            )
+          );
+          resolve(fallbackGroup);
+        }
+      );
     });
   }
   return cachedModelPromise;
@@ -115,9 +81,11 @@ const RoseViewer: React.FC<{
 
     // ---------- Scene / camera / renderer ----------
     const scene = new THREE.Scene();
+    const initialWidth = container.clientWidth || 320;
+    const initialHeight = container.clientHeight || 320;
     const camera = new THREE.PerspectiveCamera(
       45,
-      container.clientWidth / (container.clientHeight || 1),
+      initialWidth / initialHeight,
       0.1,
       100
     );
@@ -130,9 +98,9 @@ const RoseViewer: React.FC<{
     placeCamera(4);
 
     // Full-quality renderer settings: pristine antialiasing, crisp pixel ratio
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(initialWidth, initialHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x231720, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -172,6 +140,8 @@ const RoseViewer: React.FC<{
 
       pivot.add(model);
       setLoading(false);
+      // Immediately render at least one frame so it displays instantly on mobile
+      renderer.render(scene, camera);
     });
 
     // ---------- Render loop & IntersectionObserver ----------
@@ -179,7 +149,7 @@ const RoseViewer: React.FC<{
     const clock = new THREE.Clock();
     let raf = 0;
     let isRunning = false;
-    let isIntersecting = false;
+    let isIntersecting = true;
 
     const render = () => {
       if (!isRunning) return;
@@ -200,7 +170,10 @@ const RoseViewer: React.FC<{
       if (raf) cancelAnimationFrame(raf);
     };
 
-    // Off-screen pause: only renders when visible, leaving scroll 100% buttery smooth
+    // Start animation immediately on mount so mobile doesn't wait on IO
+    startAnimation();
+
+    // Off-screen pause: pauses WebGL rendering when scrolled out of view
     const io = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
@@ -213,7 +186,7 @@ const RoseViewer: React.FC<{
       },
       {
         root: null,
-        rootMargin: '100px 0px 100px 0px',
+        rootMargin: '150px 0px 150px 0px',
         threshold: 0,
       }
     );
@@ -228,6 +201,16 @@ const RoseViewer: React.FC<{
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      stopAnimation();
+    };
+    const handleContextRestored = () => {
+      startAnimation();
+    };
+    renderer.domElement.addEventListener('webglcontextlost', handleContextLost);
+    renderer.domElement.addEventListener('webglcontextrestored', handleContextRestored);
+
     // ---------- Resize ----------
     const ro = new ResizeObserver(() => {
       const w = container.clientWidth;
@@ -236,6 +219,9 @@ const RoseViewer: React.FC<{
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      if (!isRunning) {
+        renderer.render(scene, camera);
+      }
     });
     ro.observe(container);
 
@@ -246,6 +232,8 @@ const RoseViewer: React.FC<{
       io.disconnect();
       ro.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      renderer.domElement.removeEventListener('webglcontextlost', handleContextLost);
+      renderer.domElement.removeEventListener('webglcontextrestored', handleContextRestored);
       pmrem.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {

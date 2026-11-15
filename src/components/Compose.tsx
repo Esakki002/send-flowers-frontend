@@ -764,7 +764,7 @@ const Compose: React.FC = () => {
             <div className="p-3 bg-rose-500/10 rounded-full">
               <HeartIcon className="h-10 w-10 text-[var(--secondary)]" />
             </div>
-            <h3 id="share-modal-title" className="text-2xl font-serif font-semibold text-[var(--primary)] flex items-center justify-center gap-2">
+            <h3 id="share-modal-title" className="text-2xl font-sans font-semibold text-[var(--primary)] flex items-center justify-center gap-2">
               <span>Payment Successful!</span>
               <RoseIcon className="w-6 h-6 text-[var(--secondary)] inline-block" />
             </h3>

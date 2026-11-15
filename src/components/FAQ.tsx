@@ -57,7 +57,7 @@ const FAQ: React.FC = () => {
                   className="w-full text-left px-5 py-4 flex justify-between items-center font-medium text-[var(--primary)] gap-4"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-base sm:text-lg font-serif">{item.q}</span>
+                  <span className="text-base sm:text-lg font-sans font-medium">{item.q}</span>
                   <div
                     className={`shrink-0 transition-transform duration-200 ${
                       isOpen ? 'rotate-180 text-[var(--secondary)]' : 'text-[var(--muted)]'

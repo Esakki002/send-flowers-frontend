@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', '"Noto Sans Tamil"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Noto Sans Tamil"', 'sans-serif'],
         serif: ['"Playfair Display"', 'Georgia', '"Noto Sans Tamil"', 'serif'],
         display: ['"Playfair Display"', 'Georgia', 'serif'],
       },

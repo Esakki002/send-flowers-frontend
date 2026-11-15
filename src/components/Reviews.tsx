@@ -55,7 +55,7 @@ const Reviews: React.FC = () => {
                   ))}
                 </div>
 
-                <p className="text-sm text-[var(--text)] mt-4 italic leading-relaxed font-serif">
+                <p className="text-sm text-[var(--text)] mt-4 italic leading-relaxed font-sans">
                   "{r.text}"
                 </p>
               </div>
