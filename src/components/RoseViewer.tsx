@@ -67,10 +67,14 @@ const RoseViewer: React.FC<{
   className?: string;
   autoRotateSpeed?: number;
   loadingClassName?: string;
+  interactive?: boolean;
+  cameraDistanceMultiplier?: number;
 }> = ({
   className = 'w-full h-full',
   autoRotateSpeed = 0.25,
   loadingClassName = 'bg-[var(--soft-pink)]',
+  interactive = false,
+  cameraDistanceMultiplier = 2.5,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
@@ -90,12 +94,27 @@ const RoseViewer: React.FC<{
       100
     );
 
-    const elevation = THREE.MathUtils.degToRad(30);
+    const elevation = THREE.MathUtils.degToRad(22);
+    const targetY = 0.06;
     const placeCamera = (distance: number) => {
-      camera.position.set(0, Math.sin(elevation) * distance, Math.cos(elevation) * distance);
-      camera.lookAt(0, 0, 0);
+      camera.position.set(0, targetY + Math.sin(elevation) * distance, Math.cos(elevation) * distance);
+      camera.lookAt(0, targetY, 0);
     };
-    placeCamera(4);
+
+    let modelRadius = 0.85;
+
+    // Dynamically calculate camera distance so model fits across Mobile, Tablet & Laptop aspect ratios
+    const updateCameraDistance = (aspect: number) => {
+      const vFovRad = THREE.MathUtils.degToRad(camera.fov);
+      const halfFovTan = Math.tan(vFovRad / 2);
+      const distV = modelRadius / halfFovTan;
+      // Account for slender vertical profile of the rose (width is ~62% of height)
+      const distH = (modelRadius * 0.62) / (halfFovTan * Math.max(aspect, 0.1));
+      const fitDistance = Math.max(distV, distH) * (cameraDistanceMultiplier || 0.88);
+      placeCamera(fitDistance);
+    };
+
+    updateCameraDistance(initialWidth / initialHeight);
 
     // Full-quality renderer settings: pristine antialiasing, crisp pixel ratio
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -104,8 +123,11 @@ const RoseViewer: React.FC<{
     renderer.setClearColor(0x231720, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.domElement.style.pointerEvents = 'none';
-    renderer.domElement.style.touchAction = 'pan-y';
+    renderer.domElement.style.pointerEvents = interactive ? 'auto' : 'none';
+    renderer.domElement.style.touchAction = interactive ? 'none' : 'pan-y';
+    if (interactive) {
+      renderer.domElement.style.cursor = 'grab';
+    }
     container.appendChild(renderer.domElement);
 
     // ---------- Lights (stay fixed while the rose rotates) ----------
@@ -133,16 +155,72 @@ const RoseViewer: React.FC<{
       if (isDisposed) return;
       const model = masterModel.clone(true);
 
-      const radius = new THREE.Box3()
+      modelRadius = new THREE.Box3()
         .setFromObject(model)
-        .getBoundingSphere(new THREE.Sphere()).radius;
-      placeCamera(radius * 2.5);
+        .getBoundingSphere(new THREE.Sphere()).radius || 0.85;
+      updateCameraDistance(camera.aspect);
 
       pivot.add(model);
       setLoading(false);
       // Immediately render at least one frame so it displays instantly on mobile
       renderer.render(scene, camera);
     });
+
+    // ---------- Interactive Drag Rotation ----------
+    let isDragging = false;
+    let prevPointer = { x: 0, y: 0 };
+    let dragVelocityX = 0;
+    let dragVelocityY = 0;
+
+    let onPointerDown: ((e: PointerEvent) => void) | null = null;
+    let onPointerMove: ((e: PointerEvent) => void) | null = null;
+    let onPointerUp: ((e: PointerEvent) => void) | null = null;
+
+    if (interactive) {
+      onPointerDown = (e: PointerEvent) => {
+        isDragging = true;
+        prevPointer = { x: e.clientX, y: e.clientY };
+        dragVelocityX = 0;
+        dragVelocityY = 0;
+        renderer.domElement.style.cursor = 'grabbing';
+        try {
+          renderer.domElement.setPointerCapture(e.pointerId);
+        } catch {}
+      };
+
+      onPointerMove = (e: PointerEvent) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - prevPointer.x;
+        const deltaY = e.clientY - prevPointer.y;
+
+        dragVelocityX = deltaX * 0.007;
+        dragVelocityY = deltaY * 0.007;
+
+        pivot.rotation.y += dragVelocityX;
+        pivot.rotation.x = THREE.MathUtils.clamp(
+          pivot.rotation.x + dragVelocityY,
+          -0.85,
+          0.85
+        );
+
+        prevPointer = { x: e.clientX, y: e.clientY };
+        renderer.render(scene, camera);
+      };
+
+      onPointerUp = (e: PointerEvent) => {
+        if (!isDragging) return;
+        isDragging = false;
+        renderer.domElement.style.cursor = 'grab';
+        try {
+          renderer.domElement.releasePointerCapture(e.pointerId);
+        } catch {}
+      };
+
+      renderer.domElement.addEventListener('pointerdown', onPointerDown);
+      renderer.domElement.addEventListener('pointermove', onPointerMove);
+      renderer.domElement.addEventListener('pointerup', onPointerUp);
+      renderer.domElement.addEventListener('pointercancel', onPointerUp);
+    }
 
     // ---------- Render loop & IntersectionObserver ----------
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0.2 : 1;
@@ -154,7 +232,26 @@ const RoseViewer: React.FC<{
     const render = () => {
       if (!isRunning) return;
       raf = requestAnimationFrame(render);
-      pivot.rotation.y += autoRotateSpeed * reduced * clock.getDelta();
+      const delta = clock.getDelta();
+
+      if (!isDragging) {
+        if (Math.abs(dragVelocityX) > 0.0001) {
+          pivot.rotation.y += dragVelocityX;
+          dragVelocityX *= 0.93;
+        } else {
+          pivot.rotation.y += autoRotateSpeed * reduced * delta;
+        }
+
+        if (Math.abs(dragVelocityY) > 0.0001) {
+          pivot.rotation.x = THREE.MathUtils.clamp(
+            pivot.rotation.x + dragVelocityY,
+            -0.85,
+            0.85
+          );
+          dragVelocityY *= 0.93;
+        }
+      }
+
       renderer.render(scene, camera);
     };
 
@@ -219,6 +316,7 @@ const RoseViewer: React.FC<{
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      updateCameraDistance(w / h);
       if (!isRunning) {
         renderer.render(scene, camera);
       }
@@ -234,19 +332,25 @@ const RoseViewer: React.FC<{
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       renderer.domElement.removeEventListener('webglcontextlost', handleContextLost);
       renderer.domElement.removeEventListener('webglcontextrestored', handleContextRestored);
+      if (onPointerDown && onPointerMove && onPointerUp) {
+        renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+        renderer.domElement.removeEventListener('pointermove', onPointerMove);
+        renderer.domElement.removeEventListener('pointerup', onPointerUp);
+        renderer.domElement.removeEventListener('pointercancel', onPointerUp);
+      }
       pmrem.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [autoRotateSpeed]);
+  }, [autoRotateSpeed, interactive, cameraDistanceMultiplier]);
 
   return (
     <div
-      className={`relative pointer-events-none select-none ${className}`}
+      className={`relative ${interactive ? 'pointer-events-auto cursor-grab active:cursor-grabbing' : 'pointer-events-none'} select-none ${className}`}
       ref={containerRef}
-      style={{ touchAction: 'pan-y' }}
+      style={{ touchAction: interactive ? 'none' : 'pan-y' }}
     >
       {loading && (
         <div className={`absolute inset-0 flex items-center justify-center animate-pulse ${loadingClassName}`} />

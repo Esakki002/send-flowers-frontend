@@ -124,51 +124,73 @@ const Receiver: React.FC = () => {
   }
 
   return (
-    <main className="relative min-h-dvh w-full flex flex-col justify-between bg-[radial-gradient(ellipse_at_50%_25%,#4a2238_0%,#2c1825_55%,#1c1019_100%)] text-white overflow-x-hidden">
-      {/* 3D Rose Canvas Area - Occupies upper viewport full-width */}
-      <section className="relative w-full flex-1 min-h-[46vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(244,114,147,0.22),transparent_70%)] pointer-events-none" />
-        <RoseViewer className="h-full w-full" loadingClassName="bg-transparent" />
-      </section>
+    <main className="relative min-h-[100dvh] w-full flex flex-col justify-between bg-[radial-gradient(ellipse_at_50%_25%,#4a2238_0%,#2c1825_55%,#1c1019_100%)] text-white overflow-x-hidden overflow-y-auto">
+      {/* Background ambient lighting */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(244,114,147,0.25),transparent_75%)] pointer-events-none" />
 
-      {/* Message and Controls Section - Seamless full-screen flow without a floating box */}
-      <section className="relative z-10 w-full px-5 pb-8 pt-2 sm:px-8 sm:pb-12">
-        <div className="mx-auto max-w-xl text-left">
-          {/* Recipient badge */}
-          <div className="mb-3 flex items-center justify-between">
+      {/* Main Responsive Layout:
+          - Mobile / Tablet Portrait: Full 100dvh flex stack with Rose expanding in upper space and Message Box docked to the bottom with zero dead space
+          - Laptop / Desktop / Tablet Landscape: Balanced side-by-side view with large canvas and zero scroll needed
+      */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto min-h-[100dvh] flex flex-col justify-between lg:flex-row lg:items-center lg:justify-between lg:gap-8 xl:gap-14 px-3 sm:px-6 lg:px-10 py-3 sm:py-6 lg:py-10">
+        
+        {/* 3D Rose Canvas Area - Expands vertically and fills available screen across Mobile, Tablet & Laptop */}
+        <section className="relative w-full lg:w-[55%] flex-1 flex items-center justify-center overflow-hidden min-h-[380px] sm:min-h-[460px] lg:h-[82vh] lg:min-h-[580px]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(244,114,147,0.28),transparent_70%)] pointer-events-none" />
+          <RoseViewer
+            className="h-full w-full"
+            loadingClassName="bg-transparent"
+            interactive={true}
+            cameraDistanceMultiplier={0.76}
+          />
+          {/* Subtle Interactive Rotation Hint */}
+          <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-rose-300/25 text-[11px] font-medium tracking-wide text-[#fceef2]/90 pointer-events-none select-none shadow-md">
+            <span>Drag to rotate 3D rose</span>
+            <span className="text-xs">↻</span>
+          </div>
+        </section>
+
+        {/* Name and Message Box - Fitted directly to the screen */}
+        <section className="w-full lg:w-[45%] max-w-xl mx-auto lg:mx-0 shrink-0 pb-1 sm:pb-0">
+          <div className="rounded-2xl sm:rounded-3xl border border-[#f47293]/30 bg-[#2c1825]/90 backdrop-blur-md p-5 sm:p-7 lg:p-8 shadow-[0_16px_50px_rgba(0,0,0,0.5)] text-left space-y-3.5">
+            {/* Recipient badge */}
             <div className="flex items-center gap-2">
               <HeartIcon className="h-3.5 w-3.5 shrink-0 text-[#fae0b2]" />
-              <p className="truncate text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[#fae0b2]">
+              <p className="truncate text-xs font-semibold uppercase tracking-[0.22em] text-[#fae0b2]">
                 {card?.recipientName ?? 'Someone special'}
               </p>
             </div>
-          </div>
 
-          <p className="text-lg text-white sm:text-xl">
-            <span className="font-sans italic font-medium text-[#fae0b2]">{card?.senderName ?? 'Someone'}</span>
-            {' sent you a rose'}
-          </p>
+            {/* Sender headline */}
+            <p className="text-lg text-white sm:text-xl font-medium">
+              <span className="font-sans italic font-semibold text-[#fae0b2]">{card?.senderName ?? 'Someone'}</span>
+              {' sent you a rose'}
+            </p>
 
-          <hr className="my-4 border-0 border-t border-[#f47293]/25" />
+            <hr className="border-0 border-t border-[#f47293]/20" />
 
-          <p className="whitespace-pre-wrap break-words font-sans text-sm sm:text-base italic leading-relaxed text-[#fceef2]">
-            {card?.message ?? 'A message for that special person...'}
-          </p>
+            {/* Heartfelt message */}
+            <p className="whitespace-pre-wrap break-words font-sans text-base sm:text-lg italic leading-relaxed text-[#fceef2]">
+              {card?.message ?? 'A message for that special person...'}
+            </p>
 
-          <div className="mt-3 text-right">
-            <span className="font-sans italic text-xs sm:text-sm text-[#fae0b2]">
-              — {card?.senderName ?? 'Someone'}
-            </span>
-          </div>
-
-          {/* Voice Message Player */}
-          {card.audioData && (
-            <div id="voice-message-container" className="mt-5 pt-1">
-              <VoicePlayer audioSrc={card.audioData} />
+            {/* Signature */}
+            <div className="text-right pt-0.5">
+              <span className="font-sans italic text-sm sm:text-base text-[#fae0b2]">
+                — {card?.senderName ?? 'Someone'}
+              </span>
             </div>
-          )}
-        </div>
-      </section>
+
+            {/* Voice Message Player */}
+            {card.audioData && (
+              <div id="voice-message-container" className="pt-2 border-t border-[#f47293]/15">
+                <VoicePlayer audioSrc={card.audioData} />
+              </div>
+            )}
+          </div>
+        </section>
+
+      </div>
     </main>
   );
 };
