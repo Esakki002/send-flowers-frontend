@@ -69,12 +69,18 @@ const RoseViewer: React.FC<{
   loadingClassName?: string;
   interactive?: boolean;
   cameraDistanceMultiplier?: number;
+  elevationDeg?: number;
+  targetY?: number;
+  initialTiltX?: number;
 }> = ({
   className = 'w-full h-full',
   autoRotateSpeed = 0.25,
   loadingClassName = 'bg-[var(--soft-pink)]',
   interactive = false,
-  cameraDistanceMultiplier = 2.5,
+  cameraDistanceMultiplier = 0.95,
+  elevationDeg = 24,
+  targetY = 0.04,
+  initialTiltX = 0,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
@@ -94,8 +100,7 @@ const RoseViewer: React.FC<{
       100
     );
 
-    const elevation = THREE.MathUtils.degToRad(22);
-    const targetY = 0.06;
+    const elevation = THREE.MathUtils.degToRad(elevationDeg);
     const placeCamera = (distance: number) => {
       camera.position.set(0, targetY + Math.sin(elevation) * distance, Math.cos(elevation) * distance);
       camera.lookAt(0, targetY, 0);
@@ -108,9 +113,9 @@ const RoseViewer: React.FC<{
       const vFovRad = THREE.MathUtils.degToRad(camera.fov);
       const halfFovTan = Math.tan(vFovRad / 2);
       const distV = modelRadius / halfFovTan;
-      // Account for slender vertical profile of the rose (width is ~62% of height)
-      const distH = (modelRadius * 0.62) / (halfFovTan * Math.max(aspect, 0.1));
-      const fitDistance = Math.max(distV, distH) * (cameraDistanceMultiplier || 0.88);
+      // Account for slender vertical profile of the rose (width is ~55% of height)
+      const distH = (modelRadius * 0.55) / (halfFovTan * Math.max(aspect, 0.1));
+      const fitDistance = Math.max(distV, distH) * (cameraDistanceMultiplier || 0.95);
       placeCamera(fitDistance);
     };
 
@@ -143,6 +148,9 @@ const RoseViewer: React.FC<{
 
     // ---------- Pivot: the rose is centered inside it, the pivot spins ----------
     const pivot = new THREE.Group();
+    if (initialTiltX) {
+      pivot.rotation.x = THREE.MathUtils.degToRad(initialTiltX);
+    }
     scene.add(pivot);
 
     const assetsBase = (import.meta.env.VITE_ASSETS_BASE_URL || '/models').replace(/\/+$/, '');
@@ -344,7 +352,7 @@ const RoseViewer: React.FC<{
         container.removeChild(renderer.domElement);
       }
     };
-  }, [autoRotateSpeed, interactive, cameraDistanceMultiplier]);
+  }, [autoRotateSpeed, interactive, cameraDistanceMultiplier, elevationDeg, targetY, initialTiltX]);
 
   return (
     <div

@@ -49,7 +49,7 @@ const Hero: React.FC = () => {
         {/* Right Visual */}
         <div className="hero-visual w-full md:w-1/2 mt-8 md:mt-0 flex justify-center items-center">
           <div className="w-full max-w-[340px] sm:max-w-md lg:max-w-lg aspect-square min-h-[280px]">
-            <RoseViewer className="w-full h-full" />
+            <RoseViewer className="w-full h-full" cameraDistanceMultiplier={0.92} elevationDeg={14} />
           </div>
         </div>
       </div>

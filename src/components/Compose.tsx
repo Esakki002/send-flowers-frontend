@@ -705,7 +705,7 @@ const Compose: React.FC = () => {
               className="glass-preview aspect-square w-full max-w-md overflow-hidden rounded-2xl"
             >
               {show3DPreview ? (
-                <RoseViewer className="h-full w-full" />
+                <RoseViewer className="h-full w-full" cameraDistanceMultiplier={1.05} elevationDeg={14} />
               ) : (
                 <div className="h-full w-full bg-[var(--soft-pink)] animate-pulse" />
               )}
